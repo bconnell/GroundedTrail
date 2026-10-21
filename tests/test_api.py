@@ -15,6 +15,7 @@ def test_ingest_retrieve_replace_delete(client):
     })
     assert create.status_code == 201
     document_id = create.json()["id"]
+    assert create.json()["version"] == 1
     assert len(client.get("/api/documents").json()["documents"]) == 1
     found = client.post("/api/ask", json={"question": "What do releases require?"}).json()
     assert found["sources"][0]["document_id"] == document_id
@@ -24,6 +25,7 @@ def test_ingest_retrieve_replace_delete(client):
         "name": "guide.md", "content": "Updated releases require security review."
     })
     assert replace.status_code == 200
+    assert replace.json()["version"] == 2
     updated = client.post("/api/ask", json={"question": "What requires security review?"}).json()
     assert "security review" in updated["sources"][0]["excerpt"]
     assert all("rollback plan" not in s["excerpt"] for s in updated["sources"])

@@ -42,6 +42,7 @@ class DocumentEntry:
     name: str
     sha256: str
     chunk_count: int
+    version: int
     created_at: str
     updated_at: str
     chunk_ids: list[str]
@@ -103,6 +104,7 @@ class Repository:
                 name=name,
                 sha256=hashlib.sha256(content.encode("utf-8")).hexdigest(),
                 chunk_count=len(chunks),
+                version=(old.version + 1) if old else 1,
                 created_at=old.created_at if old else now,
                 updated_at=now,
                 chunk_ids=new_chunk_ids,
@@ -188,6 +190,7 @@ class PostgresRepository(Repository):
                     """CREATE TABLE IF NOT EXISTS source_documents (
                         id UUID PRIMARY KEY, name VARCHAR(120) UNIQUE NOT NULL,
                         sha256 CHAR(64) NOT NULL, chunk_count INTEGER NOT NULL,
+                        version INTEGER NOT NULL,
                         created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL,
                         chunk_ids JSONB NOT NULL
                     )"""
@@ -205,13 +208,13 @@ class PostgresRepository(Repository):
 
         with self.sql.connect() as connection:
             rows = connection.execute(
-                text("SELECT id, name, sha256, chunk_count, created_at, updated_at, chunk_ids "
+                text("SELECT id, name, sha256, chunk_count, version, created_at, updated_at, chunk_ids "
                      "FROM source_documents ORDER BY created_at")
             ).mappings()
             return [
                 DocumentEntry(
                     id=str(row["id"]), name=row["name"], sha256=row["sha256"],
-                    chunk_count=row["chunk_count"],
+                    chunk_count=row["chunk_count"], version=row["version"],
                     created_at=row["created_at"].isoformat(),
                     updated_at=row["updated_at"].isoformat(),
                     chunk_ids=row["chunk_ids"] if isinstance(row["chunk_ids"], list)
@@ -227,15 +230,15 @@ class PostgresRepository(Repository):
             if replacing:
                 connection.execute(
                     text("""UPDATE source_documents SET name=:name, sha256=:sha256,
-                        chunk_count=:chunk_count, updated_at=:updated_at,
+                        chunk_count=:chunk_count, version=:version, updated_at=:updated_at,
                         chunk_ids=CAST(:chunk_ids AS jsonb) WHERE id=CAST(:id AS uuid)"""),
                     {**asdict(entry), "chunk_ids": json.dumps(entry.chunk_ids)},
                 )
             else:
                 connection.execute(
                     text("""INSERT INTO source_documents
-                        (id, name, sha256, chunk_count, created_at, updated_at, chunk_ids)
-                        VALUES (CAST(:id AS uuid), :name, :sha256, :chunk_count,
+                        (id, name, sha256, chunk_count, version, created_at, updated_at, chunk_ids)
+                        VALUES (CAST(:id AS uuid), :name, :sha256, :chunk_count, :version,
                         :created_at, :updated_at, CAST(:chunk_ids AS jsonb))"""),
                     {**asdict(entry), "chunk_ids": json.dumps(entry.chunk_ids)},
                 )

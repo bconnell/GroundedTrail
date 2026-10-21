@@ -53,6 +53,13 @@ async function loadDocuments() {
   $('metric-docs').textContent = String(result.documents.length);
   $('side-doc-count').textContent = String(result.documents.length);
   $('library-count').textContent = `${result.documents.length} sources`;
+  const replaceSelect = $('replace-id');
+  const priorSelection = replaceSelect.value;
+  replaceSelect.replaceChildren(new Option('Create a new document', ''));
+  for (const document of result.documents) {
+    replaceSelect.add(new Option(`Replace ${document.name} (v${document.version})`, document.id));
+  }
+  replaceSelect.value = result.documents.some(doc => doc.id === priorSelection) ? priorSelection : '';
   const list = $('doc-list');
   list.replaceChildren();
   if (!result.documents.length) {
@@ -133,12 +140,14 @@ async function upload(event) {
   const button = $('upload-button');
   button.disabled = true;
   try {
-    await api('/api/documents', {
-      method: 'POST',
+    const replacing = $('replace-id').value;
+    await api(replacing ? `/api/documents/${encodeURIComponent(replacing)}` : '/api/documents', {
+      method: replacing ? 'PUT' : 'POST',
       body: JSON.stringify({ name: $('doc-name').value.trim(), content: $('doc-content').value })
     });
     $('upload-form').reset();
-    toast('Document indexed and ready for retrieval.');
+    $('upload-button').textContent = 'Index document ＋';
+    toast(replacing ? 'Document replaced and reindexed.' : 'Document indexed and ready for retrieval.');
     await loadDocuments();
   } catch (error) {
     toast(error.message);
@@ -179,6 +188,11 @@ async function initialize() {
   $('search-form').addEventListener('submit', search);
   $('upload-form').addEventListener('submit', upload);
   $('evaluate-button').addEventListener('click', evaluate);
+  $('replace-id').addEventListener('change', event => {
+    const selected = state.documents.find(item => item.id === event.target.value);
+    if (selected) $('doc-name').value = selected.name;
+    $('upload-button').textContent = selected ? 'Replace document ↗' : 'Index document ＋';
+  });
   $('source-file').addEventListener('change', async event => {
     const file = event.target.files[0];
     if (!file) return;
