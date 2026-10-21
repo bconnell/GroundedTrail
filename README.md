@@ -61,7 +61,7 @@ $env:GROUNDTRAIL_EMBEDDINGS = 'hash'
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Use the PostgreSQL configuration for actual vector retrieval and persistence. The screenshot above shows the application interface populated with real API results from the temporary demo backend and the two bundled sample documents. It does not represent a production benchmark.
+Use the PostgreSQL configuration for actual vector retrieval and persistence. The screenshot above shows the application interface populated with real API results from the temporary demo backend and the two bundled sample documents. It does not represent a production benchmark. To capture the interface yourself, install `playwright`, run `python -m playwright install chromium`, and execute `python scripts/capture_screenshot.py` while the demo backend is running.
 
 ## Optional generated answers
 
