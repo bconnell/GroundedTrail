@@ -1,0 +1,5 @@
+[
+  {"question": "What tests are required before software publication?", "expected_source": "release-guide.md"},
+  {"question": "What should happen when evidence is insufficient?", "expected_source": "citation-guide.md"},
+  {"question": "Does a citation prove that generated statements are true?", "expected_source": "citation-guide.md"}
+]
