@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1325">
+  <meta name="description" content="Inspect retrieved evidence and evaluate document retrieval.">
+  <title>GroundedTrail · Evidence Workspace</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Workspace navigation">
+      <a class="brand" href="/" aria-label="GroundedTrail home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M8 30 17 10 23 22 30 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="8" r="4" fill="currentColor"/></svg></span>
+        <span>grounded<span class="brand-light">trail</span><small>EVIDENCE WORKSPACE</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="navigation" aria-label="Sections">
+        <button class="nav active" type="button" data-tab="explore"><span class="nav-icon">⌕</span> Explore <span class="nav-active-dot"></span></button>
+        <button class="nav" type="button" data-tab="library"><span class="nav-icon">▤</span> Source library <span class="count" id="side-doc-count">0</span></button>
+        <button class="nav" type="button" data-tab="evaluate"><span class="nav-icon">▥</span> Evaluate</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="mini-rule"></div>
+        <div class="sidebar-caption">TRACEABLE RETRIEVAL</div>
+        <p>Every reference points back to an indexed passage.</p>
+        <div class="system-status"><span id="status-dot" class="dot"></span><span id="backend-label">Connecting…</span></div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><span>Workspace <span class="crumb">/</span> <strong id="section-label">Explore</strong></span><div class="top-right"><span class="version-pill">v0.1</span><a href="/docs" target="_blank" rel="noopener noreferrer">API docs ↗</a></div></header>
+      <div class="main-content">
+        <section class="page" id="page-explore">
+          <div class="eyebrow"><span class="eyebrow-line"></span> DOCUMENT INTELLIGENCE</div>
+          <div class="heading-row"><div><h1>Find the answer.<br><em>Follow the evidence.</em></h1><p class="lead">Search your document collection with source linked retrieval. See exactly which passages were returned and how they rank.</p></div><div class="heading-icon" aria-hidden="true">⌕</div></div>
+          <div class="stat-grid">
+            <div class="stat"><span>INDEXED SOURCES</span><strong id="metric-docs">0</strong><small>Available documents</small></div>
+            <div class="stat"><span>SEARCH MODE</span><strong id="metric-mode">Retrieval</strong><small id="mode-hint">Source first, citation ready</small></div>
+            <div class="stat"><span>LAST SEARCH</span><strong id="metric-results">—</strong><small>Passages returned</small></div>
+          </div>
+          <form id="search-form" class="search-panel">
+            <label for="question">ASK YOUR DOCUMENTS</label>
+            <div class="search-input-row"><textarea id="question" name="question" rows="2" maxlength="500" placeholder="What do the documents say about the release process?" required></textarea><button type="submit" class="primary" id="search-button">Search evidence <span aria-hidden="true">↗</span></button></div>
+            <div class="search-footer"><span>Answers are only as reliable as the indexed sources.</span><label for="top-k">Passages <select id="top-k"><option value="3">3</option><option selected value="4">4</option><option value="5">5</option><option value="8">8</option></select></label></div>
+          </form>
+          <div id="query-results" class="results" aria-live="polite"><div class="empty-results"><div class="empty-glyph">⌕</div><h2>Search results appear here</h2><p>Ask a question to inspect relevant document passages with source references.</p></div></div>
+        </section>
+        <section class="page hidden" id="page-library">
+          <div class="eyebrow"><span class="eyebrow-line"></span> CONTENT MANAGEMENT</div><h1>Source <em>library.</em></h1><p class="lead">Index Markdown or plain text. Replacing a document refreshes its searchable passages.</p>
+          <div class="upload-panel"><h2>Add a document</h2><p>Select a UTF-8 file or paste content below. Files stay within the configured backend.</p><form id="upload-form"><div class="field"><label for="source-file">LOCAL FILE (.md, .txt)</label><input type="file" id="source-file" accept=".md,.txt,text/plain,text/markdown"></div><div class="field"><label for="replace-id">DOCUMENT ACTION</label><select id="replace-id"><option value="">Create a new document</option></select></div><div class="field"><label for="doc-name">DOCUMENT NAME</label><input type="text" id="doc-name" placeholder="release-notes.md" maxlength="120" required></div><div class="field"><label for="doc-content">DOCUMENT TEXT</label><textarea id="doc-content" rows="7" maxlength="120000" placeholder="Paste a document or select a file…" required></textarea></div><button class="primary" id="upload-button" type="submit">Index document <span aria-hidden="true">＋</span></button></form></div>
+          <div class="section-heading"><h2>Indexed documents</h2><span id="library-count">0 sources</span></div><div id="doc-list" class="document-list"></div>
+        </section>
+        <section class="page hidden" id="page-evaluate"><div class="eyebrow"><span class="eyebrow-line"></span> RETRIEVAL QUALITY</div><h1>Measure the <em>retrieval.</em></h1><p class="lead">Compare returned source rankings with a small transparent reference dataset. These metrics measure retrieval, not whether generated answers are factually correct.</p><div class="evaluation-intro"><div><h2>Reference evaluation</h2><p>Run the included queries against the currently indexed documents. Results are calculated live, never hardcoded.</p></div><button class="primary" id="evaluate-button">Run evaluation ↗</button></div><div id="eval-results" class="eval-output"><p>Evaluation results will appear here.</p></div></section>
+      </div>
+      <footer>GROUNDEDTRAIL <span>·</span> Evidence over assertion <span class="footer-right">Local document workspace</span></footer>
+    </main>
+    <div id="toast" role="status" aria-live="polite" class="toast hidden"></div>
+  </div>
+</body>
+</html>

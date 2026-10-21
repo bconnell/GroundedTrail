@@ -1,0 +1,30 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: groundedtrail
+      POSTGRES_USER: groundedtrail
+      POSTGRES_PASSWORD: groundedtrail
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U groundedtrail -d groundedtrail"]
+      interval: 5s
+      retries: 15
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://groundedtrail:groundedtrail@db:5432/groundedtrail
+      GROUNDTRAIL_BACKEND: postgres
+      GROUNDTRAIL_EMBEDDINGS: local
+      HF_HOME: /home/appuser/.cache/huggingface
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - model_cache:/home/appuser/.cache/huggingface
+volumes:
+  postgres_data:
+  model_cache:
